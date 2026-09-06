@@ -1,0 +1,492 @@
+distance
+learning; support for collaborative or community-based learning.
+Transport and logisticsThe use of location technologies such as GPS in route finding systems
+and more general traffic management systems; the modern car itself as
+an example of a complex distributed system (also applies to other
+forms of transport such as aircraft); the development of web-based map
+services such as MapQuest, Google Maps and Google Earth.
+ScienceThe emergence of the Grid as a fundamental technology for eScience,
+including the use of complex networks of computers to support the
+storage, analysis and processing of (often very large quantities of)
+scientific data; the associated use of the Grid as an enabling technology
+for worldwide collaboration between groups of scientists.
+Environmental managementThe use of (networked) sensor technology to both monitor and manage
+the natural environment, for example to provide early warning of
+natural disasters such as earthquakes, floods or tsunamis and to co-
+ordinate emergency response; the collation and analysis of global
+environmental parameters to better understand complex natural
+phenomena such as climate change.SECTION 1.2 EXAMPLES OF DISTRIBUTED SYSTEMS 5
+addresses. Given that most search engines analyze the entire web content and then carry
+out sophisticated processing on this enormous database, this task itself represents a
+major challenge for distributed systems design.
+Google, the market leader in web search technology, has put significant effort into
+the design of a sophisticated distributed system infrastructure to support search (and
+indeed other Google applications and services such as Google Earth). This represents
+one of the largest and most complex distributed systems installations in the history of
+computing and hence demands close examination. Highlights of this infrastructure
+include:
+• an underlying physical infrastructure consisting of very large numbers of
+networked computers located at data centres all around the world;
+• a distributed file system designed to support very large files and heavily optimized
+for the style of usage required by search and other Google applications (especially
+reading from files at high and sustained rates);
+• an associated structured distributed storage system that offers fast access to very
+large datasets;
+• a lock service that offers distributed system functions such as distributed locking
+and agreement;
+• a programming model that supports the management of very large parallel and
+distributed computations across the underlying physical infrastructure.
+Further details on Google’s distributed systems services and underlying communica-
+tions support can be found in Chapter 21, a compelling case study of a modern distrib-
+uted system in action.
+1.2.2
+Massively multiplayer online games (MMOGs)
+Massively multiplayer online games offer an immersive experience whereby very large
+numbers of users interact through the Internet with a persistent virtual world. Leading
+examples of such games include Sony’s EverQuest II and EVE Online from the Finnish
+company CCP Games. Such worlds have increased significantly in sophistication and
+now include, complex playing arenas (for example EVE, Online consists of a universe
+with over 5,000 star systems) and multifarious social and economic systems. The
+number of players is also rising, with systems able to support over 50,000 simultaneous
+online players (and the total number of players perhaps ten times this figure).
+The engineering of MMOGs represents a major challenge for distributed systems
+technologies, particularly because of the need for fast response times to preserve the user
+experience of the game. Other challenges include the real-time propagation of events to
+the many players and maintaining a consistent view of the shared world. This therefore
+provides an excellent example of the challenges facing modern distributed systems
+designers.
+A number of solutions have been proposed for the design of massively multiplayer
+online games:
+• Perhaps surprisingly, the largest online game, EVE Online, utilises a client-server
+architecture where a single copy of the state of the world is maintained on a6
+CHAPTER 1 CHARACTERIZATION OF DISTRIBUTED SYSTEMS
+centralized server and accessed by client programs running on players’ consoles
+or other devices. To support large numbers of clients, the server is a complex
+entity in its own right consisting of a cluster architecture featuring hundreds of
+computer nodes (this client-server approach is discussed in more detail in Section
+1.4 and cluster approaches are discussed in Section 1.3.4). The centralized
+architecture helps significantly in terms of the management of the virtual world
+and the single copy also eases consistency concerns. The goal is then to ensure fast
+response through optimizing network protocols and ensuring a rapid response to
+incoming events. To support this, the load is partitioned by allocating individual
+‘star systems’ to particular computers within the cluster, with highly loaded star
+systems having their own dedicated computer and others sharing a computer.
+Incoming events are directed to the right computers within the cluster by keeping
+track of movement of players between star systems.
+• Other MMOGs adopt more distributed architectures where the universe is
+partitioned across a (potentially very large) number of servers that may also be
+geographically distributed. Users are then dynamically allocated a particular
+server based on current usage patterns and also the network delays to the server
+(based on geographical proximity for example). This style of architecture, which
+is adopted by EverQuest, is naturally extensible by adding new servers.
+• Most commercial systems adopt one of the two models presented above, but
+researchers are also now looking at more radical architectures that are not based
+on client-server principles but rather adopt completely decentralized approaches
+based on peer-to-peer technology where every participant contributes resources
+(storage and processing) to accommodate the game. Further consideration of peer-
+to-peer solutions is deferred until Chapters 2 and 10).
+1.2.3
+Financial trading
+As a final example, we look at distributed systems support for financial trading markets.
+The financial industry has long been at the cutting edge of distributed systems
+technology with its need, in particular, for real-time access to a wide range of
+information sources (for example, current share prices and trends, economic and
+political developments). The industry employs automated monitoring and trading
+applications (see below).
+Note that the emphasis in such systems is on the communication and processing
+of items of interest, known as events in distributed systems, with the need also to deliver
+events reliably and in a timely manner to potentially very large numbers of clients who
+have a stated interest in such information items. Examples of such events include a drop
+in a share price, the release of the latest unemployment figures, and so on. This requires
+a very different style of underlying architecture from the styles mentioned above (for
+example client-server), and such systems typically employ what are known as
+distributed event-based systems. We present an illustration of a typical use of such
+systems below and return to this important topic in more depth in Chapter 6.
+Figure 1.2 illustrates a typical financial trading system. This shows a series of
+event feeds coming into a given financial institution. Such event feeds share theSECTION 1.2 EXAMPLES OF DISTRIBUTED SYSTEMS 7
+Figure 1.2
+An example financial trading system
+Trading strategies
+FIX
+Gateway
+FIX
+Adapter
+Complex
+Event Processing
+Engine
+Reuters
+Adapter
+FIX events
+Reuters
+Gateway
+Reuters events
+following characteristics. Firstly, the sources are typically in a variety of formats, such
+as Reuters market data events and FIX events (events following the specific format of
+the Financial Information eXchange protocol), and indeed from different event
+technologies, thus illustrating the problem of heterogeneity as encountered in most
+distributed systems (see also Section 1.5.1). The figure shows the use of adapters which
+translate heterogeneous formats into a common internal format. Secondly, the trading
+system must deal with a variety of event streams, all arriving at rapid rates, and often
+requiring real-time processing to detect patterns that indicate trading opportunities. This
+used to be a manual process but competitive pressures have led to increasing automation
+in terms of what is known as Complex Event Processing (CEP), which offers a way of
+composing event occurrences together into logical, temporal or spatial patterns.
+This approach is primarily used to develop customized algorithmic trading
+strategies covering both buying and selling of stocks and shares, in particular looking
+for patterns that indicate a trading opportunity and then automatically responding by
+placing and managing orders. As an example, consider the following script:
+WHEN
+MSFT price moves outside 2% of MSFT Moving Average
+FOLLOWED-BY (
+MyBasket moves up by 0.5%
+AND
+HPQ’s price moves up by 5%
+OR
+MSFT’s price moves down by 2%
+)
+)
+ALL WITHIN
+any 2 minute time period
+THEN
+BUY MSFT
+SELL HPQ8
+CHAPTER 1 CHARACTERIZATION OF DISTRIBUTED SYSTEMS
+This script is based on the functionality provided by Apama [www.progress.com], a
+commercial product in the financial world originally developed out of research carried
+out at the University of Cambridge. The script detects a complex temporal sequence
+based on the share prices of Microsoft, HP and a basket of other share prices, resulting
+in decisions to buy or sell particular shares.
+This style of technology is increasingly being used in other areas of financial
+systems including the monitoring of trading activity to manage risk (in particular,
+tracking exposure), to ensure compliance with regulations and to monitor for patterns of
+activity that might indicate fraudulent transactions. In such systems, events are typically
+intercepted and passed through what is equivalent to a compliance and risk firewall
+before being processed (see also the discussion of firewalls in Section 1.3.1 below).
+1.3
+Trends in distributed systems
+Distributed systems are undergoing a period of significant change and this can be traced
+back to a number of influential trends:
+• the emergence of pervasive networking technology;
+• the emergence of ubiquitous computing coupled with the desire to support user
+mobility in distributed systems;
+• the increasing demand for multimedia services;
+• the view of distributed systems as a utility.
+1.3.1
+Pervasive networking and the modern Internet
+The modern Internet is a vast interconnected collection of computer networks of many
+different types, with the range of types increasing all the time and now including, for
+example, a wide range of wireless communication technologies such as WiFi, WiMAX,
+Bluetooth (see Chapter 3) and third-generation mobile phone networks. The net result is
+that networking has become a pervasive resource and devices can be connected (if
+desired) at any time and in any place.
+Figure 1.3 illustrates a typical portion of the Internet. Programs running on the
+computers connected to it interact by passing messages, employing a common means of
+communication. The design and construction of the Internet communication
+mechanisms (the Internet protocols) is a major technical achievement, enabling a
+program running anywhere to address messages to programs anywhere else and
+abstracting over the myriad of technologies mentioned above.
+The Internet is also a very large distributed system. It enables users, wherever they
+are, to make use of services such as the World Wide Web, email and file transfer.
+(Indeed, the Web is sometimes incorrectly equated with the Internet.) The set of services
+is open-ended – it can be extended by the addition of server computers and new types of
+service. The figure shows a collection of intranets – subnetworks operated by companies
+and other organizations and typically protected by firewalls. The role of a firewall is to
+protect an intranet by preventing unauthorized messages from leaving or entering. ASECTION 1.3 TRENDS IN DISTRIBUTED SYSTEMS 9
+Figure 1.3
+A typical portion of the Internet
+intranet
+ISP
+ba
+ne
+bo
+k
+c
+c
+ba
+e
+on
+kb
+k
+lin
+lite
+tel
+sa
+ck
+ba
+ne
+bo
+desktop computer:
+server:
+network link:
+firewall is implemented by filtering incoming and outgoing messages. Filtering might
+be done by source or destination, or a firewall might allow only those messages related
+to email and web access to pass into or out of the intranet that it protects. Internet Service
+Providers (ISPs) are companies that provide broadband links and other types of
+connection to individual users and small organizations, enabling them to access services
+anywhere in the Internet as well as providing local services such as email and web
+hosting. The intranets are linked together by backbones. A backbone is a network link
+with a high transmission capacity, employing satellite connections, fibre optic cables
+and other high-bandwidth circuits.
+Note that some organizations may not wish to connect their internal networks to
+the Internet at all. For example, police and other security and law enforcement agencies
+are likely to have at least some internal intranets that are isolated from the outside world
+(the most effective firewall possible – the absence of any physical connections to the
+Internet). Firewalls can also be problematic in distributed systems by impeding
+legitimate access to services when resource sharing between internal and external users
+is required. Hence, firewalls must often be complemented by more fine-grained
+mechanisms and policies, as discussed in Chapter 11.
+The implementation of the Internet and the services that it supports has entailed
+the development of practical solutions to many distributed system issues (including
+most of those defined in Section 1.5). We shall highlight those solutions throughout the
+book, pointing out their scope and their limitations where appropriate.10
+CHAPTER 1 CHARACTERIZATION OF DISTRIBUTED SYSTEMS
+1.3.2
+Mobile and ubiquitous computing
+Technological advances in device miniaturization and wireless networking have led
+increasingly to the integration of small and portable computing devices into distributed
+systems. These devices include:
+• Laptop computers.
+• Handheld devices, including mobile phones, smart phones, GPS-enabled devices,
+pagers, personal digital assistants (PDAs), video cameras and digital cameras.
+• Wearable devices, such as smart watches with functionality similar to a PDA.
+• Devices embedded in appliances such as washing machines, hi-fi systems, cars
+and refrigerators.
+The portability of many of these devices, together with their ability to connect
+conveniently to networks in different places, makes mobile computing possible. Mobile
+computing is the performance of computing tasks while the user is on the move, or
+visiting places other than their usual environment. In mobile computing, users who are
+away from their ‘home’ intranet (the intranet at work, or their residence) are still
+provided with access to resources via the devices they carry with them. They can
+continue to access the Internet; they can continue to access resources in their home
+intranet; and there is increasing provision for users to utilize resources such as printers
+or even sales points that are conveniently nearby as they move around. The latter is also
+known as location-aware or context-aware computing. Mobility introduces a number of
+challenges for distributed systems, including the need to deal with variable connectivity
+and indeed disconnection, and the need to maintain operation in the face of device
+mobility (see the discussion on mobility transparency in Section 1.5.7).
+Ubiquitous computing is the harnessing of many small, cheap computational
+devices that are present in users’ physical environments, including the home, office and
+even natural settings. The term ‘ubiquitous’ is intended to suggest that small computing
+devices will eventually become so pervasive in everyday objects that they are scarcely
+noticed. That is, their computational behaviour will be transparently and intimately tied
+up with their physical function.
+The presence of computers everywhere only becomes useful when they can
+communicate with one another. For example, it may be convenient for users to control
+their washing machine or their entertainment system from their phone or a ‘universal
+remote control’ device in the home. Equally, the washing machine could notify the user
+via a smart badge or phone when the washing is done.
+Ubiquitous and mobile computing overlap, since the mobile user can in principle
+benefit from computers that are everywhere. But they are distinct, in general. Ubiquitous
+computing could benefit users while they remain in a single environment such as the
+home or a hospital. Similarly, mobile computing has advantages even if it involves only
+conventional, discrete computers and devices such as laptops and printers.
+Figure 1.4 shows a user who is visiting a host organization. The figure shows the
+user’s home intranet and the host intranet at the site that the user is visiting. Both
+intranets are connected to the rest of the Internet.
+The user has access to three forms of wireless connection. Their laptop has a
+means of connecting to the host’s wireless LAN. This network provides coverage of aSECTION 1.3 TRENDS IN DISTRIBUTED SYSTEMS
+Figure 1.4
+11
+Portable and handheld devices in a distributed system
+Internet
+Host intranet
+Home intranet
+Wireless LAN
+Printer
+Camera
+Mobile
+phone
+Laptop
+GPS satellite signal
+3G phone network
+Host site
+few hundred metres (a floor of a building, say). It connects to the rest of the host intranet
+via a gateway or access point. The user also has a mobile (cellular) telephone, which is
+connected to the Internet. The phone gives access to the Web and other Internet services,
+constrained only by what can be presented on its small display, and may also provide
+location information via built-in GPS functionality. Finally, the user carries a digital
+camera, which can communicate over a personal area wireless network (with range up
+to about 10m) with a device such as a printer.
+With a suitable system infrastructure, the user can perform some simple tasks in
+the host site using the devices they carry. While journeying to the host site, the user can
+fetch the latest stock prices from a web server using the mobile phone and can also use
+the built-in GPS and route finding software to get directions to the site location. During
+the meeting with their hosts, the user can show them a recent photograph by sending it
+from the digital camera directly to a suitably enabled (local) printer or projector in the
+meeting room (discovered using a location service). This requires only the wireless link
+between the camera and printer or projector. And they can in principle send a document
+from their laptop to the same printer, utilizing the wireless LAN and wired Ethernet links
+to the printer.
+This scenario demonstrates the need to support spontaneous interoperation,
+whereby associations between devices are routinely created and destroyed – for example
+by locating and using the host’s devices, such as printers. The main challenge applying
+to such situations is to make interoperation fast and convenient (that is, spontaneous)
+even though the user is in an environment they may never have visited before. That
+means enabling the visitor’s device to communicate on the host network, and
+associating the device with suitable local services – a process called service discovery.
+Mobile and ubiquitous computing represent lively areas of research, and the
+various dimensions mentioned above are discussed in depth in Chapter 19.12
+CHAPTER 1 CHARACTERIZATION OF DISTRIBUTED SYSTEMS
+1.3.3
+Distributed multimedia systems
+Another important trend is the requirement to support multimedia services in distributed
+systems. Multimedia support can usefully be defined as the ability to support a range of
+media types in an integrated manner. One can expect a distributed system to support the
+storage, transmission and presentation of what are often referred to as discrete media
+types, such as pictures or text messages. A distributed multimedia system should be able
+to perform the same functions for continuous media types such as audio and video; that
+is, it should be able to store and locate audio or video files, to transmit them across the
+network (possibly in real time as the streams emerge from a video camera), to support
+the presentation of the media types to the user and optionally also to share the media
+types across a group of users.
+The crucial characteristic of continuous media types is that they include a
+temporal dimension, and indeed, the integrity of the media type is fundamentally
+dependent on preserving real-time relationships between elements of a media type. For
+example, in a video presentation it is necessary to preserve a given throughput in terms
+of frames per second and, for real-time streams, a given maximum delay or latency for
+the delivery of frames (this is one example of quality of service, discussed in more detail
+in Section 1.5.8).
+The benefits of distributed multimedia computing are considerable in that a wide
+range of new (multimedia) services and applications can be provided on the desktop,
+including access to live or pre-recorded television broadcasts, access to film libraries
+offering video-on-demand services, access to music libraries, the provision of audio and
+video conferencing facilities and integrated telephony features including IP telephony
+or related technologies such as Skype, a peer-to-peer alternative to IP telephony (the
+distributed system infrastructure underpinning Skype is discussed in Section 4.5.2).
+Note that this technology is revolutionary in challenging manufacturers to rethink many
+consumer devices. For example, what is the core home entertainment device of the
+future – the computer, the television, or the games console?
+Webcasting is an application of distributed multimedia technology. Webcasting is
+the ability to broadcast continuous media, typically audio or video, over the Internet. It
+is now commonplace for major sporting or music events to be broadcast in this way,
+often attracting large numbers of viewers (for example, the Live8 concert in 2005
+attracted around 170,000 simultaneous users at its peak).
+Distributed multimedia applications such as webcasting place considerable
+demands on the underlying distributed infrastructure in terms of:
+• providing support for an (extensible) range of encoding and encryption formats,
+such as the MPEG series of standards (including for example the popular MP3
+standard otherwise known as MPEG-1, Audio Layer 3) and HDTV;
+• providing a range of mechanisms to ensure that the desired quality of service can
+be met;
+• providing associated resource management strategies, including appropriate
+scheduling policies to support the desired quality of service;
+• providing adaptation strategies to deal with the inevitable situation in open
+systems where quality of service cannot be met or sustained.
+Further discussion of such mechanisms can be found in Chapter 20.SECTION 1.3 TRENDS IN DISTRIBUTED SYSTEMS
+1.3.4
+13
+Distributed computing as a utility
+With the increasing maturity of distributed systems infrastructure, a number of
+companies are promoting the view of distributed resources as a commodity or utility,
+drawing the analogy between distributed resources and other utilities such as water or
+electricity. With this model, resources are provided by appropriate service suppliers and
+effectively rented rather than owned by the end user. This model applies to both physical
+resources and more logical services:
+• Physical resources such as storage and processing can be made available to
+networked computers, removing the need to own such resources on their own. At
+one end of the spectrum, a user may opt for a remote storage facility for file
+storage requirements (for example, for multimedia data such as photographs,
+music or video) and/or for backups. Similarly, this approach would enable a user
+to rent one or more computational nodes, either to meet their basic computing
+needs or indeed to perform distributed computation. At the other end of the
+spectrum, users can access sophisticated data centres (networked facilities
+offering access to repositories of often large volumes of data to users or
+organizations) or indeed computational infrastructure using the sort of services
+now provided by companies such as Amazon and Google. Operating system
+virtualization is a key enabling technology for this approach, implying that users
+may actually be provided with services by a virtual rather than a physical node.
+This offers greater flexibility to the service supplier in terms of resource
+management (operating system virtualization is discussed in more detail in
+Chapter 7).
+• Software services (as defined in Section 1.4) can also be made available across the
+global Internet using this approach. Indeed, many companies now offer a
+comprehensive range of services for effective rental, including services such as
+email and distributed calendars. Google, for example, bundles a range of business
+services under the banner Google Apps [www.google.com I]. This development
+is enabled by agreed standards for software services, for example as provided by
+web services (see Chapter 9).
+The term cloud computing is used to capture this vision of computing as a utility. A
+cloud is defined as a set of Internet-based application, storage and computing services
+sufficient to support most users’ needs, thus enabling them to largely or totally dispense
+with local data storage and application software (see Figure 1.5). The term also
+promotes a view of everything as a service, from physical or virtual infrastructure
+through to software, often paid for on a per-usage basis rather than purchased. Note that
+cloud computing reduces requirements on users’ devices, allowing very simple desktop
+or portable devices to access a potentially wide range of resources and services.
+Clouds are generally implemented on cluster computers to provide the necessary
+scale and performance required by such services. A cluster computer is a set of
+interconnected computers that cooperate closely to provide a single, integrated high-
+performance computing capability. Building on projects such as the NOW (Network of
+Workstations) Project at Berkeley [Anderson et al. 1995, now.cs.berkeley.edu] and
+Beowulf at NASA [www.beowulf.org], the trend is towards utilizing commodity
+hardware both for the computers and for the interconnecting networks. Most clusters14CHAPTER 1 CHARACTERIZATION OF DISTRIBUTED SYSTEMS
+Figure 1.5Cloud computing
+Application services
+Clients
+Storage services
+Internet
+Computational services
+consist of commodity PCs running a standard (sometimes cut-down) version of an
+operating system such as Linux, interconnected by a local area network. Companies
+such as HP, Sun and IBM offer blade solutions. Blade servers are minimal
+computational elements containing for example processing and (main memory) storage
+capabilities. A blade system consists of a potentially large number of blade servers
+contained within a blade enclosure. Other elements such as power, cooling, persistent
+storage (disks), networking and displays, are provided either by the enclosure or through
+virtualized solutions (discussed in Chapter 7). Through this solution, individual blade
+servers can be much smaller and also cheaper to produce than commodity PCs.
+The overall goal of cluster computers is to provide a range of cloud services,
+including high-performance computing capabilities, mass storage (for example through
+data centres), and richer application services such as web search (Google, for example
+relies on a massive cluster computer architecture to implement its search engine and
+other services, as discussed in Chapter 21).
+Grid computing (as discussed in Chapter 9, Section 9.7.2) can also be viewed as
+a form of cloud computing. The terms are largely synonymous and at times ill-defined,
+but Grid computing can generally be viewed as a precursor to the more general paradigm
+of cloud computing with a bias towards support for scientific applications.
+1.4
+Focus on resource sharing
+Users are so accustomed to the benefits of resource sharing that they may easily
+overlook their significance. We routinely share hardware resources such as printers, data
+resources such as files, and resources with more specific functionality such as search
+engines.SECTION 1.4 FOCUS ON RESOURCE SHARING 15
+Looked at from the point of view of hardware provision, we share equipment such
+as printers and disks to reduce costs. But of far greater significance to users is the sharing
+of the higher-level resources that play a part in their applications and in their everyday
+work and social activities. For example, users are concerned with sharing data in the
+form of a shared database or a set of web pages – not the disks and processors on which
+they are implemented. Similarly, users think in terms of shared resources such as a
+search engine or a currency converter, without regard for the server or servers that
+provide these.
+In practice, patterns of resource sharing vary widely in their scope and in how
+closely users work together. At one extreme, a search engine on the Web provides a
+facility to users throughout the world, users who need never come into contact with one
+another directly. At the other extreme, in computer-supported cooperative working
+(CSCW), a group of users who cooperate directly share resources such as documents in
+a small, closed group. The pattern of sharing and the geographic distribution of
+particular users determines what mechanisms the system must supply to coordinate
+users’ actions.
+We use the term service for a distinct part of a computer system that manages a
+collection of related resources and presents their functionality to users and applications.
+For example, we access shared files through a file service; we send documents to
+printers through a printing service; we buy goods through an electronic payment service.
+The only access we have to the service is via the set of operations that it exports. For
+example, a file service provides read, write and delete operations on files.
+The fact that services restrict resource access to a well-defined set of operations is
+in part standard software engineering practice. But it also reflects the physical
+organization of distributed systems. Resources in a distributed system are physically
+encapsulated within computers and can only be accessed from other computers by
+means of communication. For effective sharing, each resource must be managed by a
+program that offers a communication interface enabling the resource to be accessed and
+updated reliably and consistently.
+The term server is probably familiar to most readers. It refers to a running program
+(a process) on a networked computer that accepts requests from programs running on
+other computers to perform a service and responds appropriately. The requesting
+processes are referred to as clients, and the overall approach is known as client-server
+computing. In this approach, requests are sent in messages from clients to a server and
+replies are sent in messages from the server to the clients. When the client sends a
+request for an operation to be carried out, we say that the client invokes an operation
+upon the server. A complete interaction between a client and a server, from the point
+when the client sends its request to when it receives the server’s response, is called a
+remote invocation.
+The same process may be both a client and 
