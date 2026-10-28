@@ -13,7 +13,6 @@ func Split(directory string, chunkSize int) {
 	if err != nil {
 		log.Fatal("Directory Reading:", err)
 	}
-	// Explicitly create split folder if doesn't exists
 	size := chunkSize * 1000
 	for _, file := range files {
 		if file.IsDir() {
